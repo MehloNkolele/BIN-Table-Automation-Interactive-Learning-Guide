@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Open Bin Tables App in Browser",
+			"type": "shell",
+			"command": "start \"\" \"c:\\Users\\AB038N8\\Desktop\\Programming\\Bin_Tables\\index.html\"",
+			"group": "test",
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

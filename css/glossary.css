@@ -1,0 +1,161 @@
+/* Add highlight animation */
+@keyframes highlightGlossaryItem {
+    0% { background-color: rgba(255, 245, 157, 0.5); }
+    70% { background-color: rgba(255, 245, 157, 0.5); }
+    100% { background-color: white; }
+}
+
+.highlight-item {
+    animation: highlightGlossaryItem 1.5s ease-out;
+}
+
+/* Glossary alphabet styling */
+.alphabet-letter {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    margin: 0 2px;
+    border-radius: 50%;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.alphabet-letter:not(.disabled):hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+.alphabet-letter.disabled {
+    color: #ccc;
+    cursor: default;
+}
+
+/* Glossary search (Styles moved to styles.css for consistency) */
+/*
+.glossary-search-wrapper {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.glossary-search {
+    padding: 8px 36px 8px 12px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    width: 100%;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.glossary-search:focus {
+    outline: none;
+    border-color: #aaa;
+    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.2);
+}
+
+.glossary-search-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: #777;
+    pointer-events: none;
+}
+*/
+
+/* Glossary filter buttons */
+.glossary-filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.glossary-filter-button {
+    padding: 6px 12px;
+    border-radius: 16px;
+    background-color: #f0f0f0;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.glossary-filter-button:hover {
+    background-color: #e0e0e0;
+}
+
+.glossary-filter-button.active {
+    background-color: #e8f4fd;
+    border-color: #2c5282;
+    color: #2c5282;
+}
+
+/* Glossary grid */
+.glossary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.glossary-item {
+    position: relative;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    opacity: 0;
+    animation: cardFadeIn 0.4s forwards;
+}
+
+@keyframes cardFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.glossary-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.glossary-term {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 15px 0 8px;
+    display: block;
+    padding: 10px 15px 0;
+}
+
+.glossary-copy {
+    background: none;
+    border: none;
+    color: #666;
+    padding: 4px 8px;
+    margin: 0 15px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    align-self: flex-end;
+}
+
+.glossary-copy:hover {
+    background-color: #f5f5f5;
+}
+
+/* No results */
+.no-terms-found {
+    text-align: center;
+    padding: 30px;
+    grid-column: 1/-1;
+}

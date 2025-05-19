@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">    <title>Absa BIN Table Automation - Interactive Learning</title>    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/glossary.css">
+</head>
+<body>    <div class="container">        <header>
+            <div class="header-content">
+                <div class="logo-container">
+                    <img src="images/Absa_logo.png" alt="Absa Logo" id="header-logo">
+                </div>
+                <div class="header-text">
+                    <h1>BIN Table Automation: Interactive Learning Guide</h1>
+                    <p>An in-depth look at User Stories and System Requirements</p>
+                </div>
+                <nav class="app-links">
+                    <a href="#Overview">Overview</a>
+                    <a href="#UserStoriesDoc">User Stories</a>
+                    <a href="#SRSDoc">SRS Document</a>
+                    <a href="#KeyConcepts">Key Concepts</a>
+                    <a href="#Quiz">Knowledge Check</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- TAB 1: Overview & Basics -->
+        <div id="Overview" class="tab-content active">
+            <h2>Overall Goal & Introduction</h2>
+            <p>Absa aims to <strong class="highlight">automate its process for managing and distributing Bank Identification Number (BIN) tables</strong> to its devices, primarily ATMs and other Alternative Physical Channels. This initiative is driven by the need to move away from a largely manual, error-prone process to a centralized, automated, and more reliable system.</p>
+            
+            <button type="button" class="collapsible">What is a BIN?</button>
+            <div class="content">
+                <div>
+                    <p>A <strong class="term" onclick="showTerm('BIN')">Bank Identification Number (BIN)</strong> is typically the initial <strong class="highlight">eight digits</strong> of a credit, debit, or prepaid card number. These digits uniquely identify the institution (e.g., bank) that issued the card.</p>
+                    <p><em>Importance:</em> BINs are crucial for:</p>
+                    <ul>
+                        <li>Verifying transactions</li>
+                        <li>Preventing fraud in the financial industry</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button type="button" class="collapsible">What is a BIN Table?</button>
+            <div class="content">
+                <div>
+                    <p>A <strong class="term" onclick="showTerm('BIN Table')">BIN Table</strong> is a database or list that associates each BIN with its respective issuer. It contains information like:</p>
+                    <ul>
+                        <li>Bank's name</li>
+                        <li>Country of origin</li>
+                        <li>Card type (e.g., Visa, Mastercard)</li>
+                        <li>Other relevant data (e.g., card product, on-us/not-on-us status)</li>
+                    </ul>
+                    <p><em>Usage:</em> This table is used by merchants, payment processors, and financial institutions to validate transactions. When a card is swiped or used, the BIN is extracted and cross-referenced with the BIN table to determine the issuing bank. This helps in authorizing the transaction and detecting suspicious activity.</p>
+                </div>
+            </div>
+             <button type="button" class="collapsible">Source of BIN Data</button>
+            <div class="content">
+                <div>
+                   <p><strong class="term" onclick="showTerm('PASA')">PASA (Payments Association of South Africa)</strong> sends an email to all banks (including Absa) nearly every month. This email contains an Excel spreadsheet known as the <strong class="highlight">PASA Bin List</strong>, detailing BIN changes across all banks and instructions on how to execute these changes (additions, deletions). There's typically a one-month deadline for implementation.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: User Stories Document -->
+        <div id="UserStoriesDoc" class="tab-content">
+            <h2>Understanding the "BinTables User Stories" Document</h2>
+            <p>This document focuses on the "why" and "what" from the perspective of users interacting with the new system.</p>
+
+            <button type="button" class="collapsible">The "AS-IS" (Current) Process & Problems</button>
+            <div class="content">
+                <div>
+                    <h3>Current Manual Process:</h3>
+                    <ol>
+                        <li>PASA sends the PASA Bin List (Excel) via email.</li>
+                        <li>Teams responsible: host system (base24), ATM, SSK, and BCD squads.</li>
+                        <li>A meeting is held with PASA to discuss changes.</li>
+                        <li>Squads manually update application BinTable files with changes.</li>
+                        <li>Updates are stored on a GitHub repository.</li>
+                        <li>Updated files are used to build a deployment package.</li>
+                        <li>The package is tested in <strong class="term" onclick="showTerm('UAT')">UAT (User Acceptance Testing)</strong>.</li>
+                        <li>Updates are rolled out to production closer to the due date.</li>
+                        <li>Post-production monitoring occurs.</li>
+                    </ol>
+                    <h3>Problem Statement:</h3>
+                    <div class="problem-statement">
+                        <ul>
+                            <li>Manual upload is prone to "finger errors" (typos).</li>
+                            <li>Versioning issues (different devices may have inconsistent BIN tables).</li>
+                            <li>Misalignment across device types (ATM, BCD, SSK not on the same version).</li>
+                            <li>Risk of missed deployments.</li>
+                            <li>No single centralized repository for teams to reference.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="collapsible">The "TO-BE" (Proposed) Solution Overview</button>
+            <div class="content">
+                <div>
+                    <p>The proposed solution aims to automate the BIN table process, primarily concentrating on BKS (likely a system or standard for BINs) upload and device download functionalities for the initial version.</p>
+                    <p><strong>Key Components in the Proposed Flow:</strong></p>
+                    <ul>
+                        <li><strong>Business User:</strong> Interacts with the <strong class="term" onclick="showTerm('APC Portal')">APC Portal</strong> to add, remove, view, edit, and delete BINs.</li>
+                        <li><strong>Admin / Business Approver:</strong> Uses the APC Portal to approve BinTable changes.</li>
+                        <li><strong>APC Portal:</strong> Central web interface. Receives uploaded BinTable data, facilitates approval.</li>
+                        <li><strong>BinTable Service:</strong> Backend system. Reads data from the portal, generates XML files, stores/reads data from the database, handles requests from devices.</li>
+                        <li><strong>Database:</strong> Stores the master BinTable data.</li>
+                        <li><strong>Alternative Channels Device (e.g., ATM):</strong>
+                            <ul>
+                                <li>Requests BinTable download (e.g., 1st transaction of the month).</li>
+                                <li>Downloads the BinTable file from the BinTable Service.</li>
+                                <li>Sends a download confirmation back to the BinTable Service.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div class="diagram-placeholder">
+                        <p><strong>Conceptual Diagram of Proposed Solution:</strong></p>
+                        <p>Business User ➔ APC Portal (Add/Edit/Delete BINs) ➔ Admin/Approver (Approve via Portal)</p>
+                        <p>APC Portal ➔ BinTable Service (Processes & Generates XML) ➔ Database (Stores Data)</p>
+                        <p>Alternative Channel Device ➔ BinTable Service (Requests & Downloads XML, Sends Confirmation)</p>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="collapsible">User Stories (US-1 to US-9)</button>
+            <div class="content">
+                <div>
+                    <!-- US-1 -->
+                    <h4>US-1: Capture New BinTable (Business Capturer)</h4>
+                    <ul>
+                        <li><strong>As a:</strong> Business Capturer</li>
+                        <li><strong>I want to:</strong> Capture new BinTable on the capture BinTable page/Screen.</li>
+                        <li><strong>So that:</strong> The New BinTable can be stored.</li>
+                        <li><strong>Acceptance Criteria:</strong> Capturer can:
+                            <ol>
+                                <li>Capture BinTable.</li>
+                                <li>Specify dates on which the BinTable must be updated.</li>
+                            </ol>
+                        </li>
+                        <li><strong>Business Rules:</strong> Capturer must be able to:
+                            <ol>
+                                <li>Capture the BinTable details on the APC Portal.</li>
+                                <li>Save the Captured BinTable details on the APC Portal.</li>
+                            </ol>
+                        </li>
+                         <li><strong>Stakeholder:</strong> Absa (Alternative Physical Channels FFA)</li>
+                    </ul>
+                    <hr>
+                    <!-- US-2 -->
+                    <h4>US-2: View BinTable Details (System User - Capturer and Approver)</h4>
+                     <ul>
+                        <li><strong>As a:</strong> System User - Capturer and Approver</li>
+                        <li><strong>I want to:</strong> View BinTable captured, edited or deleted on the portal.</li>
+                        <li><strong>So that:</strong> I can be able to see the details of the BinTable.</li>
+                        <li><strong>Acceptance Criteria:</strong> View captured, edited or deleted BinTable.</li>
+                        <li><strong>Business Rules:</strong> User must be able to:
+                            <ol>
+                                <li>Log on to the APC Portal.</li>
+                                <li>View the BinTable details.</li>
+                            </ol>
+                        </li>
+                        <li><strong>Stakeholder:</strong> Absa (Alternative Physical Channels FFA)</li>
+                    </ul>
+                    <hr>
+                    <!-- US-3 -->
+                    <h4>US-3: Preview and Approve BinTable (Business Approver)</h4>
+                    <ul>
+                        <li><strong>As a:</strong> Business Approver</li>
+                        <li><strong>I want to:</strong> Preview and approve BinTable details.</li>
+                        <li><strong>So that:</strong> The approved BinTable details can be downloaded to the devices.</li>
+                        <li><strong>Acceptance Criteria:</strong> Approver is able to Approve captured, edited or deleted a BinTable.</li>
+                        <li><strong>Business Rules:</strong> Approver must be able to:
+                            <ol>
+                                <li>Log on to the APC portal.</li>
+                                <li>View the BinTable details.</li>
+                                <li>Approve the BinTable details.</li>
+                            </ol>
+                        </li>
+                        <li><strong>Stakeholder:</strong> Absa (Alternative Physical Channels FFA)</li>
+                    </ul>
+                    <hr>
+                    <!-- US-4 -->
+                    <h4>US-4: Device Download BinTable (APC device)</h4>
+                     <ul>
+                        <li><strong>As a (system):</strong> APC device</li>
+                        <li><strong>I want to:</strong> Get the latest BinTable to be downloaded on the APC Devices.</li>
+                        <li><strong>So that:</strong> The BinTable can be Downloaded onto the APC devices accordingly.</li>
+                        <li><strong>Acceptance Criteria:</strong>
+                            <ol>
+                                <li>Get the latest BinTable.</li>
+                                <li>Deploy the latest BinTable onto the device.</li>
+                                <li>The device shall save the BinTable information accordingly.</li>
+                            </ol>
+                        </li>
+                        <li><strong>Business Rules:</strong>
+                            <ol>
+                                <li>Check if the device has the latest version of BinTable:
+                                    <ul><li>If not found, APC device requests download of BinTable.</li></ul>
+                                </li>
+                                <li>Service checks before download:
+                                    <ul>
+                                        <li>Checks for BinTable download due date.</li>
+                                        <li>Only approved BinTable shall be downloaded.</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                        </li>
+                        <li><strong>Stakeholder:</strong> NCR, Absa (Alternative Physical Channels FFA)</li>
+                    </ul>
+                    <hr>
+                    <!-- US-5 -->
+                    <h4>US-5: Send Deployment Status (BinTable service)</h4>
+                     <ul>
+                        <li><strong>As a (system):</strong> BinTable service</li>
+                        <li><strong>I want to:</strong> Send a response status of the Bin table schedule deployment from the APC Device to BinTable service.</li>
+                        <li><strong>So that:</strong> A view of which or how many devices have successfully / unsuccessfully downloaded and deployed a BinTable can be obtained via the APC Portal.</li>
+                        <li><strong>Acceptance Criteria:</strong>
+                            <ol>
+                                <li>Get a response status for every request made from the Channel for the BinTable.</li>
+                                <li>Have a view of which devices made requests and their deployment status.</li>
+                                <li>Once download is completed/failed, a response status ('success' or 'unsuccessful') is sent back to the BinTable service.</li>
+                            </ol>
+                        </li>
+                        <li><strong>Business Rules:</strong> The BinTable service receives response status from APC Device and sends it to the APC Portal.</li>
+                        <li><strong>Stakeholder:</strong> NCR, Absa (Alternative Physical Channels FFA)</li>
+                    </ul>
+                    <hr>
+                    <!-- US-6 -->
+                    <h4>US-6: View Dashboard MI (Business User)</h4>
+                     <ul>
+                        <li><strong>As a:</strong> Business User</li>
+                        <li><strong>I want to:</strong> Have the ability to view BinTable details on the dashboard.</li>
+                        <li><strong>So that:</strong> I am able to view MI details regarding the BinTable.</li>
+                        <li><strong>Acceptance Criteria:</strong> Able to view report on the portal, including:
+                            <ul>
+                                <li>Details of the BinTable and status uploads (successful/unsuccessful) for a specific report.</li>
+                                <li>Details of APC devices that were successful or unsuccessful.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Business Rules:</strong> Business user can request ad hoc reports for BinTable with details like: User responsible, BinTable ID, Status (Approved/not), Download details (date, outcome), Servicer version, Device Version.</li>
+                         <li><strong>Stakeholder:</strong> NCR, Absa (Alternative Physical Channels FFA)</li>
+                    </ul>
+                    <hr>
+                    <!-- US-7 -->
+                    <h4>US-7: Edit Saved BinTable (Capturer)</h4>
+                     <ul>
+                        <li><strong>As a:</strong> Capturer</li>
+                        <li><strong>I want to:</strong> Edit saved BinTable details on the APC portal.</li>
+                        <li><strong>So that:</strong> I can make changes to the BinTable that have been saved.</li>
+                        <li><strong>Acceptance Criteria:</strong> Able to edit BinTable details *prior to the approval* of the details.</li>
+                        <li><strong>Business Rule:</strong> Capturer can select a function to amend saved BinTable.</li>
+                        <li><strong>Stakeholder:</strong> NCR, Absa (Alternative Physical Channels FFA)</li>
+                    </ul>
+                    <hr>
+                    <!-- US-8 -->
+                    <h4>US-8: Delete Saved BinTable (Capturer)</h4>
+                     <ul>
+                        <li><strong>As a:</strong> Capturer</li>
+                        <li><strong>I want to:</strong> Delete any saved BinTable details on the APC portal.</li>
+                        <li><strong>So that:</strong> I can delete a BinTable that has been saved.</li>
+                        <li><strong>Acceptance Criteria:</strong> Able to delete BinTable details *prior/after* (document says "prior after", likely means before final approval makes it undeletable or triggers a different delete flow).</li>
+                        <li><strong>Business Rules:</strong> User must be able to: Log on, View BinTable details, Delete the BinTable.</li>
+                        <li><strong>Stakeholder:</strong> NCR, Absa (Alternative Physical Channels FFA)</li>
+                    </ul>
+                    <hr>
+                    <!-- US-9 -->
+                    <h4>US-9: Receive Email Notifications (Business user)</h4>
+                     <ul>
+                        <li><strong>As a:</strong> Business user</li>
+                        <li><strong>I want to:</strong> Receive email notification on the updated status of the BinTable on the APC Portal.</li>
+                        <li><strong>So that:</strong> I am aware of the status of the captured and saved BinTable on the APC Portal.</li>
+                        <li><strong>Acceptance Criteria:</strong> An email notification sent to users indicating the status of saved BinTables.</li>
+                        <li><strong>Business Rules:</strong> Business User receives email based on system access.
+                            <ul>
+                                <li><strong>Capturer gets email when:</strong> A Bin table has been Approved; A deleted Bin table has been approved (for final deletion).</li>
+                                <li><strong>Approver gets email when:</strong> A Bin table has been captured and saved (pending approval); A Bin table has been Deleted (pending approval of deletion).</li>
+                            </ul>
+                        </li>
+                        <li><strong>Stakeholder:</strong> NCR, Absa (Alternative Physical Channels FFA)</li>
+                    </ul>
+                </div>
+            </div>
+            <button type="button" class="collapsible">Contributors & Document History</button>
+            <div class="content">
+                <div>
+                    <p><strong>Contributors:</strong> N Nkala, M Mpulo, T Sokane, S Xhelo, C Makeleni (various Product Engineer & Analyst roles at Absa).</p>
+                    <p><strong>Document History:</strong></p>
+                    <ul>
+                        <li>0.1 (19/03/2024, TS): Initial draft</li>
+                        <li>0.2 (2/4/2024, TS): Update User stories</li>
+                        <li>0.2 (5/4/2024, TS): Update user stories (Note: Same version number for two different dates implies minor updates or corrections within the same revision).</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB 3: SRS Document -->
+        <div id="SRSDoc" class="tab-content">
+            <h2>Understanding the "System Requirements Specification (SRS)" Document</h2>
+            <p>This document (Version 2.0, prepared by Tsholofelo Sokane, Created: 01/06/2024) details the "how" for building the automated BIN table system, focusing on the <strong class="term" onclick="showTerm('MVP')">Minimum Viable Product (MVP)</strong>.</p>
+
+            <button type="button" class="collapsible">Project Background & Scope</button>
+            <div class="content">
+                <div>
+                    <p><strong>Purpose:</strong> To provide customers (internal users) with an efficient channel for BinTable download. The APC portal will enable capture/removal of Bin table details from BINtypes (Domestic, On-us, invalid, contactless, Token - New BIN). Approvers examine and approve/reject. Approved BinTables are automatically downloaded to a central repository for Alternative Physical Channels devices (ATMs).</p>
+                    <p><strong>MVP Scope Includes:</strong></p>
+                    <ul>
+                        <li><strong>APC Portal - Security:</strong> Authentication, Authorization.</li>
+                        <li><strong>Landing page.</strong></li>
+                        <li><strong>BinTable application:</strong> Role Workflow (Capturer, Approver, Administrator).</li>
+                        <li><strong>Capturer workflow:</strong> View, Review, Edit, Delete, Add, Reactivate functionality.</li>
+                        <li><strong>Approver workflow:</strong> View, Approve, Reject functionality.</li>
+                        <li><strong>Administrator workflow:</strong> Can perform all BinTable functions, plus manage BINtypes (View, Add, Edit, Delete).</li>
+                        <li><strong>Dashboard functionality</strong> (all roles).</li>
+                        <li><strong>Email services.</strong></li>
+                        <li><strong>BinTable service.</strong></li>
+                        <li><strong>Database:</strong> Creation of additional fields to store Bintables.
+                            <ul>
+                                <li>Automated process to upload BinTable on Binservices.</li>
+                                <li>Automated process to Download BinTables on the local device (ATM).</li>
+                                <li>Download confirmation process from APC device (ATM) to BinService.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <p><strong>Inclusions:</strong> System integration to automate updating of BinTable details on the ATM local storage.</p>
+                    <p><strong>Exclusions:</strong></p>
+                    <ul>
+                        <li>The enhancement does not impact existing ATM BinTable *reading* functionality during a transaction.</li>
+                        <li>Notice board (for general information display, though a system message notice board is shown in UI) is out of scope.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <button type="button" class="collapsible">Definitions, Acronyms, Abbreviations</button>
+            <div class="content">
+                <div>
+                    <ul>
+                        <li><strong class="term" onclick="showTerm('APC Portal')">APC Portal:</strong> Alternative Physical Channels Portal.</li>
+                        <li><strong class="term" onclick="showTerm('ADFS')">Microsoft Azure ADFS:</strong> Active Directory Federation Service, Cloud.</li>
+                        <li><strong class="term" onclick="showTerm('BIN')">BIN:</strong> Bank Identification Number.</li>
+                        <li><strong class="term" onclick="showTerm('BINtype')">BINtype:</strong> Files used to store Bins (e.g., Domestic, On-Us, Contactless, Invalid, Token).</li>
+                    </ul>
+                     <p><em>Supporting Docs referenced:</em> Process Flow PDF, Data Flow PDF, UI Figma link.</p>
+                </div>
+            </div>
+
+            <button type="button" class="collapsible">System Access & User Roles (APC Portal)</button>
+            <div class="content">
+                <div>
+                    <p>Defines workflows and rules for different roles on the APC portal.</p>
+                    <h4>7.1 Capturer:</h4>
+                    <ul>
+                        <li>Dashboard: View summary, MI details, Export MI.</li>
+                        <li>BINtype: View details, Export BINtypes.</li>
+                        <li>View Bin: View Bin entries.</li>
+                        <li>Review Bin: View rejected items needing action.</li>
+                        <li>Add Bin: Add a new Bin.</li>
+                        <li>Delete: Delete an existing bin (Soft delete).</li>
+                        <li>Edit: Edit a bin.</li>
+                        <li>Reactivate: Reactivate a previously deleted bin.</li>
+                    </ul>
+                    <h4>7.2 Approver:</h4>
+                     <ul>
+                        <li>Dashboard: View summary, MI details, Export MI.</li>
+                        <li>BINtype: View details, Export BINtypes.</li>
+                        <li>View Bin: View Bin entries.</li>
+                        <li>Review Bin: Action Bins pending approval (Approve Single/Multiple Bins, Reject Bin).</li>
+                    </ul>
+                    <h4>7.3 Administrator (Back Office Functionality / Superuser):</h4>
+                    <ul>
+                        <li>Access to all Capturer and Approver functionalities.</li>
+                        <li>Ability to make changes to BINtypes: View, Add, Edit, Delete BINtypes.</li>
+                    </ul>
+                    <p class="important-note"><strong>Access Rule:</strong> All users must request System Access from Africa Access for all environments (DEV, SIT, UAT, PROD).</p>
+                </div>
+            </div>
+
+            <button type="button" class="collapsible">APC Portal - Login & Authentication (Section 8)</button>
+            <div class="content">
+                <div>
+                    <h4>8.1 Authentication: Single Sign-On (SSO)</h4>
+                    <ul>
+                        <li>User enters APC URL ➔ prompted to sign-on (first time).</li>
+                        <li>Microsoft Azure ADFS sends back an access token (contains user groups, info, valid for 60 mins).</li>
+                        <li>User is directed to APC landing page.</li>
+                        <li>Subsequent logins (within the day/token validity) might not require full re-authentication.</li>
+                        <li>Users enter their Absa email address and domain password.</li>
+                    </ul>
+                    <h4>8.2 Authorization:</h4>
+                    <ul>
+                        <li>User's token groups are validated against BINTABLE group IDs.</li>
+                        <li>Role is assigned based on group membership (e.g., `BinTables-DEV-ZA-Capturer`, `BinTables-PROD-ZA-Approver`).</li>
+                    </ul>
+                    <h4>Logout:</h4>
+                    <p>User selects a drop-down button to logout, closing the APC session.</p>
+                </div>
+            </div>
+
+            <button type="button" class="collapsible">APC Portal - UI & Navigation (Section 9)</button>
+            <div class="content">
+                <div>
+                    <h4>9. Landing Page:</h4>
+                    <p>Upon successful login, user is directed to the APC Portal landing page. (Endpoint provided).</p>
+                    <p><strong>Top Navigation:</strong> (Endpoint provided)</p>
+                    <ul>
+                        <li>"APC Portal" name (static).</li>
+                        <li>Home icon (returns to landing page).</li>
+                        <li>Breadcrumb trail (e.g., Home > BIN Tables > BINS).</li>
+                        <li>User details (top right): Name and Role (Capturer/Approver/Administrator).</li>
+                    </ul>
+                    <h4>9.2 APC Portal Landing Page:</h4>
+                    <ul>
+                        <li>"Welcome [User Name]" (name is dynamic).</li>
+                        <li><strong>Notice Board:</strong> Informs users of system changes/updates. Number indicates available notices. Arrow to view next notice.</li>
+                        <li><strong>Applications:</strong> Links to accessible applications (e.g., "ATM Marketing," "Bintables"). Locked/greyed out if no access.</li>
+                    </ul>
+                    <h4>9.3 BIN Table Landing Page:</h4>
+                    <p>Upon selecting "BinTable," user sees three panels:</p>
+                    <ul>
+                        <li><strong>Bins:</strong> To make changes to Bins.</li>
+                        <li><strong>BINtypes:</strong> To make changes to BINtypes.</li>
+                        <li><strong>Dashboard:</strong> To display summary of activities on BINS.</li>
+                        <li>Also includes a Notice Board for system changes.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <button type="button" class="collapsible">BINS - Capturer Functionalities (Section 10)</button>
+            <div class="content">
+                <div>
+                    <p>Covers View, Review, Add, Delete, Edit, Reactivate.</p>
+                    <h4>10.1 View BINTable - MVP:</h4>
+                    <ul>
+                        <li>Displays BIN changes, filtered by date (descending).</li>
+                        <li>Data: BIN Number, BIN Type, Action date, Captured date/by, Outcome, Review Date/by, Review Status, Rejection Comment.</li>
+                        <li>Includes horizontal scroll, pagination, search field (by BIN Number, Type, CapturedBy, Status, Outcome).</li>
+                        <li>Edit icon per row for editable BINs.</li>
+                        <li>Detailed API endpoints (Dev/SIT/UAT/Prod) and Input/Output JSON payloads are specified.
+                            <button onclick="showModal('viewBinApiModal')">View Example API Details</button>
+                        </li>
+                    </ul>
+                    <h4>10.2 Review Menu (for Capturer):</h4>
+                     <ul>
+                        <li>Capturer can see rejected items that need action.</li>
+                        <li>Can click "Edit" icon to make changes. Only 1 BIN can be edited at a time.</li>
+                        <li>Details are pre-populated. Save Edit button deactivated if mandatory fields (BIN type, Action Date) are empty.</li>
+                        <li>Confirmation pop-up on save. Status remains "Pending."</li>
+                        <li>API endpoints and payloads for `GetBinsToReview` are specified.</li>
+                    </ul>
+                    <h4>10.3 Add BIN - MVP:</h4>
+                    <ul>
+                        <li>Capturer enters BIN Number (2-12 chars), selects BINtype(s) (multi-select), and Action Date (today or future, no past dates).</li>
+                        <li>Duplicate BIN check: If BIN exists, an error is shown, and BINtypes linked to the duplicate are displayed. Cannot proceed with duplicate.</li>
+                        <li>"Add BIN" button activated only when all 3 fields are populated.</li>
+                        <li>Multiple BINs can be added to a "New Entries" table (local storage) before final "Save & Exit."</li>
+                        <li>Edit/Delete captured (but not yet saved to DB) BINs is possible from this local list.</li>
+                        <li>On "Save & Exit," data is saved to DB with "Pending" status. Email sent to Approver. User sees a summary pop-up.</li>
+                        <li>API endpoints (`SearchBinsByNumber`, `Upload`) and payloads are specified.</li>
+                    </ul>
+                    <h4>10.4 Edit Menu (for existing BINs):</h4>
+                    <ul>
+                        <li>Purpose: Edit BINs in Rejected status (or Pending, based on context). Rule: Only BINs in Pending status can be edited (this might conflict slightly with editing rejected ones, but likely means rejected BINs become pending after edit).</li>
+                        <li>Pre-populates BIN number, Type, Action Date. BIN number is greyed out (not editable).</li>
+                        <li>On save, status remains "Pending." Email to Approver.</li>
+                        <li>API endpoint (`Upload` - same as add, but for edit) and `GetBinById` (to pre-populate) payloads.</li>
+                    </ul>
+                    <h4>10.5 Delete Bin - MVP:</h4>
+                    <ul>
+                        <li>Capturer selects "Delete" menu. Enters BIN number (only 1 at a time).</li>
+                        <li>BINtype and Action Date are pre-populated and greyed out (or selected).</li>
+                        <li>If BIN not found, error shown.</li>
+                        <li>On confirm delete, status saved as "Pending" (for deletion). Not soft-deleted yet. Email to Approver.</li>
+                        <li>API endpoint (`Delete`) and payload (binId).</li>
+                    </ul>
+                     <h4>10.6 Reactivate BIN:</h4>
+                     <ul>
+                        <li>Capturer selects "Reactivate" menu. Enters BIN number for a previously deleted (but perhaps not yet purged) BIN.</li>
+                        <li>BINtype and Action Date selected/pre-populated.</li>
+                        <li>On confirm, status saved as "Pending" (for reactivation). Email to Approver.</li>
+                        <li>API endpoint (`Reactivate`) and payload.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button type="button" class="collapsible">APPROVER Functionalities (Section 11)</button>
+            <div class="content">
+                <div>
+                    <h4>11.1 Approve Bin - MVP:</h4>
+                    <ul>
+                        <li>Approver reviews Bins in "Pending" status.</li>
+                        <li>Can approve a single BIN (via icon) or multiple selected BINs.</li>
+                        <li>On approval: Status changes to "Approved." Email to Capturer. BinTable cache is updated.</li>
+                        <li>API endpoint (`Approve`) and payload (list of binIds and outcome "Added" or "Deleted").</li>
+                    </ul>
+                    <h4>11.2 Reject Bin:</h4>
+                    <ul>
+                        <li>Approver selects cross icon for a pending BIN.</li>
+                        <li>Must provide a rejection reason (free text, max 150 chars). Mandatory.</li>
+                        <li>On reject: Status changes to "Rejected." Email to Capturer. BIN goes to Capturer's review queue.</li>
+                        <li>API endpoint (`Reject`) and payload (binId, rejectionComment, outcome).</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <button type="button" class="collapsible">BIN Type Management - Administrator (Section 13)</button>
+            <div class="content">
+                <div>
+                    <p>Current BINtypes: Domestic, On-us, Invalid, Contactless. New: Token.</p>
+                    <h4>13.1 View BINtype - MVP:</h4>
+                    <p>Displays BINtypes. User can click to see associated BINs (Number, Type, Action Date). Search and Export (CSV) available.</p>
+                    <p>API: `GetAllBINtypes`, `GetBINtypeById`.</p>
+                    <h4>13.2 Add BINtype - MVP (Admin only):</h4>
+                    <p>Admin enters Name (duplicate check) and Description. Saves to DB. No approval needed.</p>
+                    <p>API: `Add` (for BINtypes).</p>
+                    <h4>13.3 Edit BINtype (Admin only):</h4>
+                    <p>Admin edits Name/Description. Updates DB. No approval needed.</p>
+                    <p>API: `Update` (for BINtypes).</p>
+                    <h4>13.4 Delete BINtype (Admin only):</h4>
+                    <p>Admin can delete. Rule: A BINtype that contains (is linked to) BINs *cannot* be deleted. If no linked BINs, soft deleted from DB. No approval.</p>
+                    <p>API: `DeleteBINtypeById`.</p>
+                </div>
+            </div>
+
+            <button type="button" class="collapsible">Dashboard (Section 14)</button>
+            <div class="content">
+                <div>
+                    <p>Provides summary info for a selected BinTable server version/Action Date.</p>
+                    <ul>
+                        <li>User selects Action Date (from versions returned by `GetListOfServerVersions` API).</li>
+                        <li>Dashboard populates with:
+                            <ul>
+                                <li><strong>BIN Status tiles:</strong> Approved, Rejected, Review (Pending), Added, Deleted counts.</li>
+                                <li><strong>Device Downloads tiles:</strong> Success, Fail counts.</li>
+                            </ul>
+                        </li>
+                        <li>Clicking a tile shows detailed data (exportable to CSV).</li>
+                        <li>APIs: `GetListOfServerVersions`, `GetBinOverviewMetrics`, `GetUploadManagementInformation` (for BIN status details), `GetDownloadManagementInformation` (for device download details). Payloads specified.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <button type="button" class="collapsible">Email Notification - MVP (Section 12)</button>
+            <div class="content">
+                <div>
+                     <p>Email templates are referenced (BinTable email notification.pptx).</p>
+                     <p><strong>Rule: Administrator will NOT be receiving these operational emails.</strong></p>
+                     <h4>Approver receives notifications for:</h4>
+                     <ul>
+                         <li>Add Bin is saved and in pending status.</li>
+                         <li>Delete Bin is saved and in pending status.</li>
+                         <li>Reactivated Bin is saved and in pending status.</li>
+                         <li>An Aggregated email when the BIN table is downloaded on the ATM device.</li>
+                     </ul>
+                     <h4>Capturer receives notifications for:</h4>
+                     <ul>
+                         <li>Add Bin is approved.</li>
+                         <li>Delete Bin is approved.</li>
+                         <li>Add Bin is rejected.</li>
+                         <li>Delete Bin is rejected.</li>
+                         <li>An Aggregated email when the BIN table is downloaded on the ATM device.</li>
+                     </ul>
+                </div>
+            </div>
+
+            <button type="button" class="collapsible">Section B – ATM integration (Sections 15-17)</button>
+            <div class="content">
+                <div>
+                    <h4>15. BinTable Integration - ATM:</h4>
+                    <p>After APC portal approval, BIN status is "approved" in DB.</p>
+                    <p><strong>ATM Download Checks (simplified):</strong></p>
+                    <ol>
+                        <li>Check existing XML file on ATM (date, status).</li>
+                        <li>If ATM has Primary BinTable: Check update status.
+                            <ul>
+                                <li>If True (update needed): Check trigger date (1st of month or Monday). If not, update date and download.</li>
+                                <li>If False (no update flagged yet): Check if "updateDate" is today. If false, update "updateDate" & reset retry counter. If true, proceed.</li>
+                            </ul>
+                        </li>
+                        <li>Retry Logic: If download attempts < 3, increment counter & proceed. If = 3, try next day.</li>
+                        <li>Checksum & Integrity: Verify downloaded file. If incorrect, retry if counter < 3.</li>
+                        <li>Update Bintable results (counter to 3) on successful completion.</li>
+                    </ol>
+                    <p><strong>Trigger Download:</strong> First ATM activity of the day (or based on above checks) triggers a call to BinService with DeviceNumber & serverVersion.</p>
+                    <p>BinService evaluates if download is due. If yes, responds with BinTable (transformed to XML) and checksum. ATM updates local storage.</p>
+                    <p><strong>ATM Download Confirmation:</strong> ATM calls BinService with success/unsuccessful status. No response needed from BinService to NCR (ATM vendor).</p>
+                    
+                    <h4>16. Database:</h4>
+                    <ul>
+                        <li><strong>16.1 Redis Strategy (Cache):</strong> Refreshes every 24 hours. First ATM call might hit DB, subsequent calls hit Redis. Cache updated every time there's an approval.</li>
+                        <li><strong>16.3 Application Statuses:</strong> Approved (0), Pending (1), Reject (2) for Bins. Add (0), Delete (1) for Outcome. Approver (0), Capturer (1) for ToBeActionedBy.</li>
+                    </ul>
+
+                    <h4>17. Device Download:</h4>
+                     <ul>
+                        <li><strong>17.1 Download Rules:</strong> Triggers (1st of month/Monday), Retry (3 times/day), Timeout (15s), Persistence of counter/date, Download only if ATM version < server version.</li>
+                        <li><strong>17.2 Data Integrity:</strong> HMAC hash function and secret key for checksum. ATM generates local checksum and compares with server's. No match = failed integrity.</li>
+                        <li><strong>API Endpoints:</strong> `downloadbintable` (ATM to Service), `confirmdownload` (ATM to Service). Payloads specified.
+                            <button onclick="showModal('atmApiModal')">View ATM API Flow</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+             <button type="button" class="collapsible">Error Codes (Section 18) & Payload Data (Section 19-20)</button>
+            <div class="content">
+                <div>
+                    <h4>Error Codes:</h4>
+                    <p>Standard HTTP error codes are listed:</p>
+                    <ul>
+                        <li>200 OK, 201 Created, 204 No Content</li>
+                        <li>400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 405 Method Not Allowed</li>
+                        <li>500 Internal Server Error, 501 Not Implemented, 503 Service Unavailable</li>
+                    </ul>
+                    <h4>Payload Data:</h4>
+                    <p>This section seems to list example request/response text files for various API calls, broken down by Capturer workflow, Approver workflow, Dashboard, BINtype, and Download/Confirmation flows. These would be the detailed JSON structures.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB 4: Key Concepts & Flows -->
+        <div id="KeyConcepts" class="tab-content">
+            <h2>Key Concepts and Process Flows</h2>
+
+            <button type="button" class="collapsible">User Roles & Responsibilities</button>
+            <div class="content">
+                <div class="role-explorer">
+                    <button onclick="showRoleInfo('capturer')">Capturer</button>
+                    <button onclick="showRoleInfo('approver')">Approver</button>
+                    <button onclick="showRoleInfo('administrator')">Administrator</button>
+                    <div id="role-info-display" class="role-info" style="display:none;"></div>
+                </div>
+            </div>
+
+            <button type="button" class="collapsible">Typical BIN Lifecycle (Add New BIN)</button>
+            <div class="content">
+                <div>
+                    <div class="flow-step"><strong>1. Capture:</strong> A <strong class="highlight">Business Capturer</strong> logs into the APC Portal and uses the "Add BIN" function. They input the BIN number, select associated BINtype(s), and set an Action Date. The system checks for duplicates.</div>
+                    <div class="flow-step"><strong>2. Save (Pending):</strong> The Capturer saves the new BIN entry (or multiple entries). The BIN(s) are stored in the database with a <strong class="highlight">"Pending"</strong> status. An email notification is sent to the assigned <strong class="highlight">Business Approver</strong>.</div>
+                    <div class="flow-step"><strong>3. Review & Approve:</strong> The <strong class="highlight">Business Approver</strong> logs into the APC Portal, reviews the "Pending" BIN(s). They can choose to "Approve" or "Reject".</div>
+                    <div class="flow-step"><strong>4. Approval Outcome:</strong>
+                        <ul>
+                            <li><strong>If Approved:</strong> The BIN status changes to <strong class="highlight">"Approved"</strong> in the database. The BinTable cache is updated. An email is sent to the Capturer. The BIN is now ready for device download.</li>
+                            <li><strong>If Rejected:</strong> The BIN status changes to <strong class="highlight">"Rejected"</strong>. The Approver provides a reason. An email is sent to the Capturer. The BIN goes back to the Capturer's "Review" queue for correction.</li>
+                        </ul>
+                    </div>
+                    <div class="flow-step"><strong>5. Device Download:</strong> On a scheduled trigger (e.g., 1st of the month), an <strong class="highlight">ATM (Device)</strong> requests the latest BinTable from the BinTable Service.</div>
+                    <div class="flow-step"><strong>6. Service Response:</strong> The <strong class="highlight">BinTable Service</strong> provides the approved BinTable (as XML) and a checksum to the ATM.</div>
+                    <div class="flow-step"><strong>7. ATM Update & Confirmation:</strong> The ATM validates the checksum, updates its local BinTable, and sends a success/failure <strong class="highlight">confirmation</strong> back to the BinTable Service.</div>
+                    <div class="flow-step"><strong>8. Dashboard Update:</strong> The confirmation status updates the <strong class="highlight">Dashboard</strong> in the APC Portal for monitoring.</div>
+                </div>
+            </div>
+            
+            <button type="button" class="collapsible">Data Integrity (Checksum)</button>
+            <div class="content">
+                <div>
+                    <p>To ensure the integrity of the downloaded BIN table data by the ATM:</p>
+                    <ol>
+                        <li>The BinTable Service generates a <strong class="highlight">checksum</strong> (using HMAC hash function and a secret key) for the BinTable data it sends to the ATM.</li>
+                        <li>The ATM, upon receiving the BinTable data and the server's checksum, independently calculates its own checksum for the received data using the <strong class="highlight">same HMAC hash function and secret key</strong>.</li>
+                        <li>The ATM compares its locally generated checksum with the checksum received from the server.</li>
+                        <li><strong>If checksums match:</strong> Data integrity is intact. The ATM overwrites its local BinTable with the new data. Download is successful.</li>
+                        <li><strong>If checksums do NOT match:</strong> Data integrity has failed. The ATM does *not* overwrite its local BinTable (keeps the old one). Download is considered unsuccessful.</li>
+                    </ol>
+                </div>
+            </div>            <button type="button" class="collapsible">Glossary of Terms</button>
+            <div class="content">
+                <div class="glossary-container">
+                    <p>Reference guide to all the relevant terms, abbreviations, and acronyms related to the BIN Table Automation project.</p>
+                    
+                    <div class="glossary-controls">
+                        <div class="glossary-search-wrapper">
+                            <input type="text" class="glossary-search" id="glossary-search" placeholder="Search the glossary...">
+                            <svg class="glossary-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </div>
+                        
+                        <div class="glossary-filter-buttons">
+                            <button class="glossary-filter-button active" data-filter="all">All Categories</button>
+                            <button class="glossary-filter-button" data-filter="bin">BIN Related</button>
+                            <button class="glossary-filter-button" data-filter="tech">Technical</button>
+                            <button class="glossary-filter-button" data-filter="process">Process</button>
+                        </div>
+                    </div>
+                    
+                    <div class="glossary-alphabet" id="glossary-alphabet">
+                        <!-- Alphabet letters will be populated by JavaScript -->
+                    </div>
+                    
+                    <div class="glossary-grid" id="glossary-grid">
+                        <!-- Terms will be populated from JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: Quiz -->
+        <div id="Quiz" class="tab-content">
+            <h2>Knowledge Check</h2>
+            <p>Test your understanding of the BIN Table Automation project.</p>
+            <form id="quizForm">
+                <div class="quiz-question">
+                    <p><strong>1. What is the primary source of BIN change information for Absa according to the documents?</strong></p>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q1" value="a"> Internal Absa Database</label>
+                        <label><input type="radio" name="q1" value="b"> PASA Bin List (Excel via email)</label>
+                        <label><input type="radio" name="q1" value="c"> Direct feed from Visa/Mastercard</label>
+                        <label><input type="radio" name="q1" value="d"> Customer reports</label>
+                    </div>
+                    <div class="quiz-feedback" id="q1-feedback"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <p><strong>2. Which user role is responsible for approving BIN table changes in the APC Portal?</strong></p>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q2" value="a"> Business Capturer</label>
+                        <label><input type="radio" name="q2" value="b"> System Administrator (for BINS)</label>
+                        <label><input type="radio" name="q2" value="c"> Business Approver</label>
+                        <label><input type="radio" name="q2" value="d"> Device Technician</label>
+                    </div>
+                    <div class="quiz-feedback" id="q2-feedback"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <p><strong>3. What is the term for the first 8 digits of a card number identifying the issuing institution?</strong></p>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q3" value="a"> PIN</label>
+                        <label><input type="radio" name="q3" value="b"> CVV</label>
+                        <label><input type="radio" name="q3" value="c"> BIN</label>
+                        <label><input type="radio" name="q3" value="d"> AFS</label>
+                    </div>
+                    <div class="quiz-feedback" id="q3-feedback"></div>
+                </div>
+                
+                <div class="quiz-question">
+                    <p><strong>4. According to the SRS, which of these is an EXCLUSION for the MVP?</strong></p>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q4" value="a"> Email notifications for status changes.</label>
+                        <label><input type="radio" name="q4" value="b"> Changing the existing ATM BinTable *reading* functionality during a transaction.</label>
+                        <label><input type="radio" name="q4" value="c"> Dashboard for viewing MI.</label>
+                        <label><input type="radio" name="q4" value="d"> Automated download of BinTables to ATM local storage.</label>
+                    </div>
+                    <div class="quiz-feedback" id="q4-feedback"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <p><strong>5. How is data integrity ensured when an ATM downloads a BinTable?</strong></p>
+                    <div class="quiz-options">
+                        <label><input type="radio" name="q5" value="a"> SSL/TLS encryption only.</label>
+                        <label><input type="radio" name="q5" value="b"> By comparing file sizes.</label>
+                        <label><input type="radio" name="q5" value="c"> Using a checksum (HMAC hash) comparison.</label>
+                        <label><input type="radio" name="q5" value="d"> Manual verification by a technician.</label>
+                    </div>
+                    <div class="quiz-feedback" id="q5-feedback"></div>
+                </div>
+
+                <button type="button" onclick="submitQuiz()">Submit Answers</button>
+            </form>
+            <div id="quiz-result" style="margin-top: 20px;">
+                <h3>Your Score: <span id="quiz-score">0/5</span></h3>
+            </div>
+        </div>    </div> <!-- end .container -->
+
+    <!-- Modal for API Details -->
+    <div id="apiModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('apiModal')">×</span>
+            <h3 id="modalTitle">API Details</h3>
+            <div id="modalBody">
+                <p>Detailed API information would be presented here.</p>
+                <pre><code id="modalCode"></code></pre>
+            </div>
+ 
+        </div>
+    </div>
+      <!-- Modal for Terms -->
+    <div id="termModal" class="term-modal">
+        <div class="term-modal-content">
+            <div class="term-modal-header">
+                <h3 class="term-modal-title" id="termModalTitle">Glossary Term</h3>
+                <button class="term-modal-close" onclick="closeModal('termModal')">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="term-modal-body">
+                <div id="termModalDefinition"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/scripts.js"></script>
+</body>
+</html>

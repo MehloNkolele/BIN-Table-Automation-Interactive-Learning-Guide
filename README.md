@@ -1,5 +1,9 @@
 # Absa BIN Table Automation - Interactive Learning Guide
 
+## Live Project
+
+[View the live project here.](https://mehlonkolele.github.io/BIN-Table-Automation-Interactive-Learning-Guide/)
+
 ## Project Overview
 
 This project is an interactive learning guide designed to provide an in-depth look at the User Stories and System Requirements for Absa's BIN Table Automation initiative. The goal is to help users understand the current manual processes, the problems associated with them, and the proposed automated solution.

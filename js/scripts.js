@@ -231,6 +231,15 @@ function showRoleInfo(role) {
     const displayDiv = document.getElementById('role-info-display');
     displayDiv.innerHTML = roleDetails[role] || "Select a role to see details.";
     displayDiv.style.display = 'block';
+    
+    // Find the parent collapsible content container and recalculate its height
+    const contentContainer = displayDiv.closest('.content');
+    if (contentContainer && contentContainer.style.maxHeight) {
+        // Force recalculation of the container height to accommodate the new content
+        setTimeout(() => {
+            contentContainer.style.maxHeight = contentContainer.scrollHeight + "px";
+        }, 10);
+    }
 }
 
 // Quiz Logic
